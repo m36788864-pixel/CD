@@ -61,36 +61,42 @@ $f13=New-Object Drawing.Font("Segoe UI Semibold",13);$f20=New-Object Drawing.Fon
 function L($t,$f,$col,$x,$y){$z=New-Object Windows.Forms.Label;$z.Text=$t;$z.Font=$f;$z.ForeColor=$col;$z.Location=New-Object Drawing.Point($x,$y);$z.AutoSize=$true;return $z}
 function CMD($e,[string[]]$a){try{Start-Process $e -ArgumentList $a -Wait -PassThru -WindowStyle Hidden|Out-Null}catch{}}
 
-# Splash
-$s=New-Object Windows.Forms.Form;$s.Size=New-Object Drawing.Size(680,390);$s.StartPosition="CenterScreen";$s.FormBorderStyle="None";$s.BackColor=$BG;$s.TopMost=$true
-$s.Controls.Add((L "CHUGWOW" $f28 $W 225 78));$s.Controls.Add((L "SETTING V2" $f13 $PUR 285 125))
+# Splash 10 วินาที
+$s=New-Object Windows.Forms.Form
+$s.Size=New-Object Drawing.Size(680,390)
+$s.StartPosition="CenterScreen"
+$s.FormBorderStyle="None"
+$s.BackColor=$BG
+$s.TopMost=$true
+$s.Controls.Add((L "CHUGWOW" $f28 $W 225 78))
+$s.Controls.Add((L "SETTING V2" $f13 $PUR 285 125))
 $s.Controls.Add((L "WINDOWS • NETWORK • PERFORMANCE" $f9 $M 225 160))
-$ss=L "กำลังเริ่มระบบ..." $f9 $CY 275 245;$s.Controls.Add($ss)
-$b=New-Object Windows.Forms.ProgressBar;$b.Location=New-Object Drawing.Point(100,285);$b.Size=New-Object Drawing.Size(480,7);$b.Maximum=100;$s.Controls.Add($b)
+$ss=L "กำลังเริ่มระบบ..." $f9 $CY 275 245
+$s.Controls.Add($ss)
+$b=New-Object Windows.Forms.ProgressBar
+$b.Location=New-Object Drawing.Point(100,285)
+$b.Size=New-Object Drawing.Size(480,7)
+$b.Minimum=0
+$b.Maximum=100
+$b.Value=0
+$s.Controls.Add($b)
 $tm=New-Object Windows.Forms.Timer
-$tm.Interval=20
+$tm.Interval=100
 $tm.Tag=0
 $tm.Add_Tick({
-    $v=[int]$tm.Tag + 5
-    if($v -gt 100){$v=100}
-    $tm.Tag=$v
-    $b.Value=$v
-    if($v -lt 30){
-        $ss.Text="กำลังตรวจสอบสิทธิ์ผู้ดูแล..."
-    } elseif($v -lt 60){
-        $ss.Text="กำลังโหลดโมดูลระบบ..."
-    } elseif($v -lt 90){
-        $ss.Text="กำลังเตรียม UI..."
-    } else {
-        $ss.Text="พร้อมใช้งาน"
-    }
-    if($v -ge 100){
-        $tm.Stop()
-        $s.Close()
-    }
+    $progress=[int]$tm.Tag+1
+    $tm.Tag=$progress
+    $b.Value=$progress
+    if($progress -lt 20){$ss.Text="กำลังตรวจสอบสิทธิ์ผู้ดูแล..."}
+    elseif($progress -lt 40){$ss.Text="กำลังตรวจสอบระบบ Windows..."}
+    elseif($progress -lt 60){$ss.Text="กำลังโหลด Network Module..."}
+    elseif($progress -lt 80){$ss.Text="กำลังเตรียม Performance Module..."}
+    elseif($progress -lt 100){$ss.Text="กำลังเตรียม CHUGWOW-SETTING V2..."}
+    else{$ss.Text="พร้อมใช้งาน";$tm.Stop();$s.Close()}
 })
 $s.Add_Shown({$tm.Start()})
 [void]$s.ShowDialog()
+$tm.Dispose()
 $s.Dispose()
 
 # Main
