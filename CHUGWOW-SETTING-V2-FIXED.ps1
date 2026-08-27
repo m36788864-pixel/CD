@@ -1,4 +1,4 @@
-﻿#requires -version 5.1
+#requires -version 5.1
 $ErrorActionPreference = "Stop"
 try {
     & {
@@ -67,9 +67,31 @@ $s.Controls.Add((L "CHUGWOW" $f28 $W 225 78));$s.Controls.Add((L "SETTING V2" $f
 $s.Controls.Add((L "WINDOWS • NETWORK • PERFORMANCE" $f9 $M 225 160))
 $ss=L "กำลังเริ่มระบบ..." $f9 $CY 275 245;$s.Controls.Add($ss)
 $b=New-Object Windows.Forms.ProgressBar;$b.Location=New-Object Drawing.Point(100,285);$b.Size=New-Object Drawing.Size(480,7);$b.Maximum=100;$s.Controls.Add($b)
-$n=0;$tm=New-Object Windows.Forms.Timer;$tm.Interval=25
-$tm.Add_Tick({$n+=4;$b.Value=[Math]::Min($n,100);if($n-lt30){$ss.Text="กำลังตรวจสอบสิทธิ์ผู้ดูแล..."}elseif($n-lt60){$ss.Text="กำลังโหลดโมดูลระบบ..."}elseif($n-lt90){$ss.Text="กำลังเตรียม UI..."}else{$ss.Text="พร้อมใช้งาน"};if($n-ge100){$tm.Stop();$s.Close()}})
-$s.Add_Shown({$tm.Start()});[void]$s.ShowDialog();$s.Dispose()
+$tm=New-Object Windows.Forms.Timer
+$tm.Interval=20
+$tm.Tag=0
+$tm.Add_Tick({
+    $v=[int]$tm.Tag + 5
+    if($v -gt 100){$v=100}
+    $tm.Tag=$v
+    $b.Value=$v
+    if($v -lt 30){
+        $ss.Text="กำลังตรวจสอบสิทธิ์ผู้ดูแล..."
+    } elseif($v -lt 60){
+        $ss.Text="กำลังโหลดโมดูลระบบ..."
+    } elseif($v -lt 90){
+        $ss.Text="กำลังเตรียม UI..."
+    } else {
+        $ss.Text="พร้อมใช้งาน"
+    }
+    if($v -ge 100){
+        $tm.Stop()
+        $s.Close()
+    }
+})
+$s.Add_Shown({$tm.Start()})
+[void]$s.ShowDialog()
+$s.Dispose()
 
 # Main
 $form=New-Object Windows.Forms.Form;$form.Text="CHUGWOW-SETTING V2";$form.Size=New-Object Drawing.Size(1220,780);$form.StartPosition="CenterScreen";$form.BackColor=$BG;$form.ForeColor=$W
